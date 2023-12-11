@@ -1,7 +1,7 @@
 # React + Vite
 
-For Installation Run Command:  npm install
-For Run Project Run Command:   npm run dev
+For Installation Run Command:  **npm install**
+For Run Project Run Command:   **npm run dev**
 
 Explanation:
 I have done with completed Figma to React.Js in this project 
