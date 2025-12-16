@@ -13,7 +13,7 @@ const HomePage = () => {
   const { users, updateUser } = useContext(Context);
   const [data, setData] = useState({
     file: "",
-    name: "",
+    userName: "",
     email: "",
     phoneNumber: "",
     interviewTime: "",
@@ -35,6 +35,14 @@ const HomePage = () => {
     console.log([data], "data");
 
     updateUser(data);
+     setData({
+    file: "",
+    userName: "",
+    email: "",
+    phoneNumber: "",
+    interviewTime: "",
+    selectedRole: "",
+    status: ""})
   };
 
   const handleRadioChange = (event) => {
@@ -107,7 +115,30 @@ const HomePage = () => {
             </Button>
           </label>
 
-          <img src={data.file} />
+          {/* <img src={data.file} /> */}
+          {data.file && (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src={data.file}
+                alt="preview"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
+          )}
+
 
           <input
             id="fileInput"
@@ -132,23 +163,7 @@ const HomePage = () => {
             }}
           />
         </Box>
-        {/* {data.file && (
-          <Box
-            sx={{
-              display: "flex",
-              height: "73px",
-              width: "159px",
-              marginTop: "20px",
-              border: "1px dashed #CCCCCC",
-              top: "145px",
-              Radius: "2px",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <img src={data.file} alt="file" />
-          </Box>
-        )} */}
+
 
         <Box my={5} sx={{ justifyContent: "center", alignItems: "center" }}>
           {/* <form onSubmit={handleAddUser}> */}
