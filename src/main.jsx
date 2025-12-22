@@ -10,7 +10,7 @@ const ContextProvider = ({ children }) => {
     setUsers((prev) => {
       return [...prev, { ...users }];
     });
-    console.log(users, "users");
+    // console.log(users, "users");
   };
   return (
     <Context.Provider value={{ users, updateUser }}>

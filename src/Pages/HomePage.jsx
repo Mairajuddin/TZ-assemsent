@@ -8,20 +8,23 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Autocomplete from "@mui/material/Autocomplete";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../main";
+import { FireApi } from "../hooks/useRequest";
 
 const HomePage = () => {
   const { users, updateUser } = useContext(Context);
+  const [preview, setPreview] = useState(""); // stores base64 string
+
   const [data, setData] = useState({
     file: "",
-    userName: "",
+    username: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     interviewTime: "",
-    selectedRole: "",
-    status: "",
+    role: "",
+    isAssign: false,
   });
 
-  const InterviewTimeZone = ["Morning", "Evening"];
+  const InterviewTimeZone = ["MORNING", "EVENING"];
 
   const handleInputChange = (name, value) => {
     setData({
@@ -30,35 +33,54 @@ const HomePage = () => {
     });
   };
 
-  const handleAddUser = (e) => {
+  const handleAddUser = async (e) => {
     e.preventDefault();
-    console.log([data], "data");
 
+    const formData = new FormData();
+    formData.append("file", data.file);
+    formData.append("username", data.username);
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+    formData.append("interviewTime", data.interviewTime);
+    formData.append("role", data.role);
+    formData.append("isAssign", data.isAssign);
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+    updateUser(formData);
     updateUser(data);
-     setData({
-    file: "",
-    userName: "",
-    email: "",
-    phoneNumber: "",
-    interviewTime: "",
-    selectedRole: "",
-    status: ""})
+    try {
+      const response = await FireApi('register', 'POST', formData);
+     
+        console.log(response)
+        setData({
+          file: "",
+          username: "",
+          email: "",
+          phone: "",
+          interviewTime: "",
+          role: "",
+          isAssign: false,
+        });
+
+
+    
+    } catch (error) {
+console.log(error)
+    }
+
   };
 
   const handleRadioChange = (event) => {
     setData({
       ...data,
-      selectedRole: event.target.value,
+      role: event.target.value,
     });
   };
 
-  const handleSwitchChange = () => {
-    setData((prevUserData) => ({
-      ...prevUserData,
-      isSwitchEnabled: !prevUserData.isSwitchEnabled,
-      selectedRole: prevUserData.isSwitchEnabled ? "" : "active",
-    }));
-  };
+
+
 
   return (
     <Box
@@ -116,7 +138,7 @@ const HomePage = () => {
           </label>
 
           {/* <img src={data.file} /> */}
-          {data.file && (
+          {preview && (
             <Box
               sx={{
                 width: "100%",
@@ -128,7 +150,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src={data.file}
+                src={preview}
                 alt="preview"
                 style={{
                   maxWidth: "100%",
@@ -145,22 +167,19 @@ const HomePage = () => {
             type="file"
             accept="image/*"
             style={{ display: "none" }}
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files[0];
-              if (!file) {
-                return;
-              }
+              if (!file) return;
 
+              handleInputChange("file", file);
               const reader = new FileReader();
-              reader.onload = (event) => {
-                if (event.target?.result) {
-                  const base64Content = event.target.result;
-                  handleInputChange("file", base64Content);
-                }
-              };
-
-              reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setPreview(reader.result); // reader.result is base64 string
+    };
+    reader.readAsDataURL(file);
+  
             }}
+
           />
         </Box>
 
@@ -172,9 +191,9 @@ const HomePage = () => {
               <InputLabel>User Name</InputLabel>
               <TextField
                 placeholder="Enter Username"
-                value={data.userName}
-                name="userName"
-                onChange={(e) => handleInputChange("userName", e.target.value)}
+                value={data.username}
+                name="username"
+                onChange={(e) => handleInputChange("username", e.target.value)}
                 sx={{ width: "70%" }}
               />
             </Grid>
@@ -193,10 +212,10 @@ const HomePage = () => {
               <InputLabel sx={{ marginTop: "30px" }}>Phone Number</InputLabel>
               <TextField
                 placeholder="Enter Phone"
-                name="phoneNumber"
-                value={data.phoneNumber}
+                name="phone"
+                value={data.phone}
                 onChange={(e) =>
-                  handleInputChange("phoneNumber", e.target.value)
+                  handleInputChange("phone", e.target.value)
                 }
                 sx={{ width: "70%" }}
               />
@@ -221,12 +240,16 @@ const HomePage = () => {
             sx={{ marginTop: "30px", display: "flex", alignItems: "center" }}
           >
             <Switch
-              {...(data.status === "active"
-                ? { color: "primary" }
-                : { color: "default" })}
-              onChange={handleSwitchChange}
-              name="status"
+              checked={data.isAssign}
+              onChange={(e) =>
+                setData((prev) => ({
+                  ...prev,
+                  isAssign: e.target.checked,
+                }))
+              }
+              color="primary"
             />
+
             <Typography
               sx={{
                 marginLeft: "10px",
@@ -243,7 +266,7 @@ const HomePage = () => {
               row
               aria-labelledby="demo-row-radio-buttons-group-label"
               name="row-radio-buttons-group"
-              value={data.selectedRole}
+              value={data.role}
               onChange={handleRadioChange}
               sx={{
                 marginLeft: "10px",
