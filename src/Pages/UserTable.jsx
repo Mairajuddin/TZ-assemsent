@@ -61,10 +61,22 @@ const [count,setCount]=useState()
       ),
     },
   ];
-  const check = users?.map((user, index) => {
-  user.id = index + 1;
-  return user;
-}) || [];
+  const check = users?.map((user, index) => ({
+  id: index + 1,
+  email: user.email,
+  file: user.file,           
+  userName: user.username,   
+  phoneNumber: user.phone ||'12334  ',
+  interviewTime: user.interviewTime,
+  selectedRole: user.role,
+  action: user.action,       
+
+})) || [];
+
+//   const check = users?.map((user, index) => {
+//   user.id = index + 1;
+//   return user;
+// }) || [];
 
   const rows = check;
 
