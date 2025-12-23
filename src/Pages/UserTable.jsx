@@ -2,17 +2,31 @@ import { Box, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Switch } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../main";
+import { FireApi } from "../hooks/useRequest";
 
 const UserTable = () => {
-  const { users } = useContext(Context);
-  const check = users.map((user, index) => {
-    user.id = index + 1;
-    return user;
-  });
+  // const { users } = useContext(Context);
+ 
+const [users,setUsers]=useState()
+const [count,setCount]=useState()
+ 
 
-  console.log(check, "check");
+  const getUsers=async()=>{
+    try {
+      const response=await FireApi('all-candidates','GET');
+      setUsers(response?.data?.users)
+      setCount(response?.data?.count)
+      console.log(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    getUsers()
+  },[])
   const columns = [
     { field: "email", headerName: "Email", width: 150, flex: 1 },
     {
@@ -47,6 +61,10 @@ const UserTable = () => {
       ),
     },
   ];
+  const check = users?.map((user, index) => {
+  user.id = index + 1;
+  return user;
+}) || [];
 
   const rows = check;
 
@@ -73,7 +91,7 @@ const UserTable = () => {
             textAlign: "center",
           }}
         >
-          {users.length}
+          {count}
         </Box>
         <Typography
           sx={{ marginLeft: "10px", color: "#666666", fontWeight: 600 }}
